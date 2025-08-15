@@ -3,170 +3,493 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upload e Galeria - Vercel Blob</title>
-
+  <title>Galeria de Imagens - Vercel Blob</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    /* Estilos personalizados para um visual mais agradável */
-    body { background-color: #f8f9fa; }
-    .upload-section { background-color: white; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1); }
-    .gallery-item .card { transition: transform 0.2s; }
-    .gallery-item .card:hover { transform: scale(1.05); }
-    .card-img-top { width: 100%; height: 200px; object-fit: cover; }
+    :root {
+      --color-primary: #735862;
+      --color-dark: #0F1726;
+      --color-light: #D9BDBA;
+      --color-accent: #BF8E8E;
+      --color-bg: #F2DFDF;
+    }
+    
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-dark);
+      font-family: 'Roboto', sans-serif;
+      line-height: 1.6;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Playfair Display', serif;
+      color: var(--color-dark);
+    }
+    
+    .navbar-custom {
+      background-color: var(--color-primary);
+      font-family: 'Playfair Display', serif;
+    }
+    
+    .navbar-custom .navbar-brand,
+    .navbar-custom .nav-link {
+      color: var(--color-bg);
+    }
+    
+    .upload-section {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+      border: 1px solid var(--color-light);
+    }
+    
+    .btn-primary {
+      background-color: var(--color-primary);
+      border-color: var(--color-primary);
+      font-family: 'Playfair Display', serif;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--color-dark);
+      border-color: var(--color-dark);
+    }
+    
+    .btn-danger {
+      background-color: var(--color-accent);
+      border-color: var(--color-accent);
+    }
+    
+    .btn-danger:hover {
+      background-color: #a07777;
+      border-color: #a07777;
+    }
+    
+    .btn-warning {
+      background-color: var(--color-light);
+      border-color: var(--color-light);
+      color: var(--color-dark);
+    }
+    
+    .btn-warning:hover {
+      background-color: #c9a9a7;
+      border-color: #c9a9a7;
+    }
+    
+    .gallery-item {
+      padding: 10px;
+    }
+    
+    .gallery-item .card {
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      height: 100%;
+      background-color: white;
+      position: relative;
+    }
+    
+    .card-img-container {
+      width: 100%;
+      padding-top: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card-img-container img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
+    }
+    
+    .image-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 23, 38, 0.8);
+      color: white;
+      padding: 10px;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      font-family: 'Roboto', sans-serif;
+    }
+    
+    .gallery-item .card:hover .image-info {
+      transform: translateY(0);
+    }
+    
+    .image-name {
+      font-weight: 500;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+    }
+    
+    .image-date {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+    
+    .modal-content {
+      border-radius: 10px;
+      border: none;
+    }
+    
+    .modal-header {
+      background-color: #735862;
+      color: white;
+      border-bottom: none;
+    }
+    
+    .modal-body img {
+      width: 100%;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+    
+    .modal-footer {
+      border-top: none;
+      background-color: #F2DFDF;
+    }
+    
+    .spinner {
+      display: none;
+    }
+    
+    .loading .spinner {
+      display: inline-block;
+    }
+    
+    .loading .text {
+      display: none;
+    }
+    
+    #status {
+      min-height: 24px;
+    }
+    
+    .text-success {
+      color: var(--color-primary) !important;
+    }
+    
+    .text-danger {
+      color: var(--color-accent) !important;
+    }
+    
+    hr {
+      border-color: var(--color-light);
+      opacity: 0.5;
+      margin: 2rem 0;
+    }
+    
+    footer {
+      background-color: var(--color-primary);
+      color: white;
+      padding: 1.5rem 0;
+      margin-top: 3rem;
+      font-family: 'Playfair Display', serif;
+    }
   </style>
 </head>
 <body>
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container">
+      <a class="navbar-brand" href="#">Galeria de Imagens</a>
+    </div>
+  </nav>
 
   <div class="container my-5">
     <div class="upload-section col-lg-8 mx-auto">
-      <h1 class="text-center mb-4">Upload para Vercel Blob</h1>
+      <h1 class="text-center mb-4">Upload para Galeria</h1>
       <form id="uploadForm">
         <div class="input-group">
           <input type="file" class="form-control" id="fileInput" name="file" required accept="image/*">
-          <button type="submit" class="btn btn-primary">Enviar</button>
+          <button type="submit" class="btn btn-primary">
+            <span class="spinner-border spinner-border-sm spinner" role="status"></span>
+            <span class="text">Enviar</span>
+          </button>
         </div>
       </form>
       <div id="status" class="mt-3 text-center"></div>
     </div>
 
-    <hr class="my-5">
-    <h2 class="text-center mb-4">Galeria de Imagens</h2>
+    <hr>
+    <h2 class="text-center mb-4">Nossa Galeria</h2>
     <div id="gallery" class="row"></div>
   </div>
 
+  <footer>
+    <div class="container text-center">
+      <p class="mb-0">© 2023 Galeria de Imagens | Todos os direitos reservados</p>
+    </div>
+  </footer>
+
+  <!-- Modal para visualização -->
+  <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="imageModalLabel">Detalhes da Imagem</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <img id="modalImage" src="" alt="" class="img-fluid">
+          <div>
+            <p><strong>Nome:</strong> <span id="modalImageName"></span></p>
+            <p><strong>Tamanho:</strong> <span id="modalImageSize"></span></p>
+            <p><strong>Data de upload:</strong> <span id="modalImageDate"></span></p>
+            <p><strong>URL:</strong> <small id="modalImageUrl" class="text-break"></small></p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          <a id="modalDownloadBtn" href="#" class="btn btn-primary" download>Download</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // --- 1. REFERÊNCIAS AOS ELEMENTOS DO DOM ---
-    // Guarda referências aos elementos HTML que vamos manipular para evitar
-    // procurá-los na página toda vez que precisarmos deles.
     const form = document.getElementById('uploadForm');
     const fileInput = document.getElementById('fileInput');
     const statusEl = document.getElementById('status');
     const galleryEl = document.getElementById('gallery');
 
-    // --- 2. FUNÇÃO PARA CARREGAR A GALERIA ---
-    // Esta função é 'async' porque ela precisa esperar a resposta da rede (fetch).
     async function loadGallery() {
-      // Informa ao usuário que as imagens estão sendo carregadas.
-      galleryEl.innerHTML = '<p class="text-center">Carregando imagens...</p>';
+      galleryEl.innerHTML = '<div class="col-12 text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></div>';
       
-      // O bloco 'try...catch' lida com possíveis erros de rede ou do servidor.
       try {
-        // Faz uma requisição GET para a nossa rota /api/files no backend.
-        // O 'await' pausa a execução da função até que a promessa do fetch seja resolvida.
         const response = await fetch('/api/files');
-
-        // Verifica se a resposta HTTP foi bem-sucedida (status 200-299).
-        // Se não for, lança um erro que será pego pelo bloco 'catch'.
-        if (!response.ok) {
-          throw new Error('Não foi possível buscar as imagens.');
-        }
-
-        // Converte a resposta do servidor (que está em formato de texto JSON) para um objeto/array JavaScript.
-        const files = await response.json();
+        if (!response.ok) throw new Error('Não foi possível buscar as imagens.');
         
-        // Limpa a mensagem de "carregando" para preparar o espaço para as imagens.
+        const files = await response.json();
         galleryEl.innerHTML = '';
-
-        // Se não houver arquivos, exibe uma mensagem amigável.
+        
         if (files.length === 0) {
-          galleryEl.innerHTML = '<p class="text-center">Nenhuma imagem encontrada. Envie a primeira!</p>';
-          return; // Encerra a função aqui.
+          galleryEl.innerHTML = '<div class="col-12"><p class="text-center">Nenhuma imagem encontrada. Envie a primeira!</p></div>';
+          return;
         }
 
-        // Itera sobre cada 'file' no array retornado pelo servidor.
         files.forEach(file => {
-          // Cria um elemento <div> que servirá como a coluna do grid do Bootstrap.
-          const col = document.createElement('div');
-          // Adiciona as classes do Bootstrap para responsividade.
-          col.className = 'col-lg-3 col-md-4 col-sm-6 mb-4 gallery-item';
-
-          // Cria a estrutura HTML de um card do Bootstrap usando template literals.
-          // Isso torna a criação de HTML complexo mais legível.
-          const card = `
-            <div class="card h-100 shadow-sm">
-                <a href="${file.url}" target="_blank">
-                    <img src="${file.url}" class="card-img-top" alt="${file.pathname}">
-                </a>
-                <div class="card-body text-center">
-                    <p class="card-text small text-muted" title="${file.pathname}">
-                        ${file.pathname.length > 20 ? file.pathname.substring(0, 20) + '...' : file.pathname}
-                    </p>
-                </div>
-            </div>`;
+          const fileName = file.pathname.split('/').pop();
+          const uploadDate = new Date(file.uploadedAt).toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
           
-          // Insere o HTML do card dentro do elemento de coluna.
-          col.innerHTML = card;
-          // Adiciona a coluna (com o card dentro) ao container da galeria.
-          galleryEl.appendChild(col);
+          galleryEl.innerHTML += `
+            <div class="col-md-4 col-sm-6 mb-4 gallery-item">
+              <div class="card">
+                <div class="card-img-container">
+                  <img src="${file.url}" class="card-img-top" alt="${fileName}">
+                  <div class="image-info">
+                    <div class="image-name">${fileName}</div>
+                    <div class="image-date">Enviado em: ${uploadDate}</div>
+                  </div>
+                </div>
+                <div class="card-body text-center">
+                  <button class="btn btn-warning btn-update">Atualizar</button>
+                  <button class="btn btn-danger btn-delete">Deletar</button>
+                </div>
+              </div>
+            </div>
+          `;
         });
-
+        
+        // Configura os eventos dos botões
+        setupButtons();
+        setupImageModal();
       } catch (error) {
-        // Se ocorrer qualquer erro no bloco 'try', ele é capturado aqui.
-        // Exibe a mensagem de erro no container da galeria para o usuário.
-        galleryEl.innerHTML = `<p class="text-center text-danger">Erro ao carregar a galeria: ${error.message}</p>`;
+        galleryEl.innerHTML = '<div class="col-12"><p class="text-center text-danger">Erro ao carregar imagens.</p></div>';
+        console.error(error);
       }
     }
 
-    // --- 3. "OUVINTE" DE EVENTO DO FORMULÁRIO DE UPLOAD ---
-    // Adiciona uma função a ser executada quando o evento 'submit' do formulário ocorrer.
-    form.addEventListener('submit', async (event) => {
-      // Previne o comportamento padrão do formulário, que é recarregar a página.
-      event.preventDefault();
+    function setupImageModal() {
+      const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+      
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('.card-img-container') || e.target.classList.contains('card-img-top')) {
+          const card = e.target.closest('.gallery-item');
+          const img = card.querySelector('img');
+          const fileName = img.alt;
+          const fileUrl = img.src;
+          const imageInfo = card.querySelector('.image-date');
+          
+          document.getElementById('modalImage').src = fileUrl;
+          document.getElementById('modalImage').alt = fileName;
+          document.getElementById('modalImageName').textContent = fileName;
+          document.getElementById('modalImageUrl').textContent = fileUrl;
+          document.getElementById('modalDownloadBtn').href = fileUrl;
+          
+          if (imageInfo) {
+            document.getElementById('modalImageDate').textContent = 
+              imageInfo.textContent.replace('Enviado em: ', '');
+          }
+          
+          // Tenta obter o tamanho da imagem
+          fetch(fileUrl)
+            .then(response => {
+              const sizeInBytes = response.headers.get('content-length');
+              if (sizeInBytes) {
+                const sizeInKB = (sizeInBytes / 1024).toFixed(2);
+                document.getElementById('modalImageSize').textContent = `${sizeInKB} KB`;
+              }
+            })
+            .catch(() => {
+              document.getElementById('modalImageSize').textContent = 'N/A';
+            });
+          
+          modal.show();
+        }
+      });
+    }
 
-      // Pega o primeiro arquivo selecionado pelo usuário no campo de input.
+    function setupButtons() {
+      galleryEl.addEventListener('click', async (event) => {
+        if (event.target.classList.contains('btn-delete')) {
+          const card = event.target.closest('.card');
+          const img = card.querySelector('img');
+          await deleteImage(img.src);
+        }
+
+        if (event.target.classList.contains('btn-update')) {
+          const card = event.target.closest('.card');
+          const img = card.querySelector('img');
+          await updateImage(img.src);
+        }
+      });
+    }
+
+    async function deleteImage(imageUrl) {
+      if (!confirm('Tem certeza que deseja deletar esta imagem?')) return;
+      
+      try {
+        statusEl.textContent = 'Deletando imagem...';
+        statusEl.className = 'mt-3 text-center text-primary';
+        
+        const response = await fetch(`/api/delete/${encodeURIComponent(imageUrl)}`, { 
+          method: 'DELETE' 
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          statusEl.textContent = 'Imagem deletada com sucesso!';
+          statusEl.className = 'mt-3 text-center text-success';
+          await loadGallery();
+        } else {
+          throw new Error(data.message || 'Erro ao deletar imagem');
+        }
+      } catch (error) {
+        statusEl.textContent = `Erro ao deletar imagem: ${error.message}`;
+        statusEl.className = 'mt-3 text-center text-danger';
+        console.error(error);
+      }
+    }
+
+    async function updateImage(imageUrl) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        try {
+          statusEl.textContent = 'Atualizando imagem...';
+          statusEl.className = 'mt-3 text-center text-primary';
+          
+          // Primeiro faz upload da nova imagem
+          const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            headers: {
+              'x-vercel-filename': file.name,
+              'Content-Type': file.type,
+            },
+            body: file,
+          });
+          
+          const newBlob = await uploadResponse.json();
+          
+          if (uploadResponse.ok) {
+            // Depois deleta a imagem antiga
+            const deleteResponse = await fetch(`/api/delete/${encodeURIComponent(imageUrl)}`, {
+              method: 'DELETE'
+            });
+            
+            if (deleteResponse.ok) {
+              statusEl.textContent = 'Imagem atualizada com sucesso!';
+              statusEl.className = 'mt-3 text-center text-success';
+              await loadGallery();
+            } else {
+              throw new Error('Erro ao remover a imagem antiga');
+            }
+          } else {
+            throw new Error(newBlob.message || 'Erro ao fazer upload da nova imagem');
+          }
+        } catch (error) {
+          statusEl.textContent = `Erro ao atualizar imagem: ${error.message}`;
+          statusEl.className = 'mt-3 text-center text-danger';
+          console.error(error);
+        }
+      };
+      
+      input.click();
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
       const file = fileInput.files[0];
-      // Se nenhum arquivo foi selecionado, não faz nada.
       if (!file) return;
 
-      // Atualiza o status para dar feedback visual ao usuário (spinner e texto).
-      statusEl.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div> Enviando...';
+      form.classList.add('loading');
+      statusEl.innerHTML = 'Enviando...';
       statusEl.className = 'mt-3 text-center text-primary';
 
       try {
-        // Faz uma requisição POST para a nossa rota de upload no backend.
         const response = await fetch('/api/upload', {
           method: 'POST',
           headers: {
-            // Cabeçalho personalizado essencial para o backend saber o nome do arquivo.
             'x-vercel-filename': file.name,
-            // Cabeçalho que informa o tipo do arquivo (ex: 'image/jpeg').
             'Content-Type': file.type,
           },
-          // O corpo (body) da requisição é o próprio objeto do arquivo.
           body: file,
         });
         
-        // Pega a resposta JSON do servidor.
         const newBlob = await response.json();
 
-        // Se a resposta HTTP foi bem-sucedida...
         if (response.ok) {
-          // Atualiza o status para uma mensagem de sucesso.
-          statusEl.innerHTML = `✅ Upload concluído!`;
+          statusEl.innerHTML = '✅ Upload concluído!';
           statusEl.className = 'mt-3 text-center text-success';
-          // Limpa o campo de input de arquivo, deixando-o pronto para o próximo upload.
           form.reset();
-          // Recarrega a galeria para exibir a nova imagem imediatamente.
-          loadGallery();
+          await loadGallery();
         } else {
-          // Se a resposta não foi 'ok', lança um erro com a mensagem vinda do servidor.
-          throw new Error(newBlob.message);
+          throw new Error(newBlob.message || 'Erro no upload');
         }
-
       } catch (error) {
-        // Captura qualquer erro (de rede ou lançado por nós) e exibe uma mensagem de falha.
         statusEl.textContent = `❌ Erro no upload: ${error.message}`;
         statusEl.className = 'mt-3 text-center text-danger';
+      } finally {
+        form.classList.remove('loading');
       }
     });
 
-    // --- 4. CARREGAMENTO INICIAL DA APLICAÇÃO ---
-    // Adiciona um "ouvinte" ao evento 'DOMContentLoaded', que é disparado
-    // quando o documento HTML inicial foi completamente carregado e analisado.
-    // Isso garante que o script só tente manipular elementos que já existem.
+    // Carregar galeria ao iniciar
     document.addEventListener('DOMContentLoaded', loadGallery);
   </script>
-
 </body>
 </html>
